@@ -1,0 +1,23 @@
+#BioGRID Interaction ID	Entrez Gene Interactor A	Entrez Gene Interactor B	BioGRID ID Interactor A	BioGRID ID Interactor B	Systematic Name Interactor A	Systematic Name Interactor B	Official Symbol Interactor A	Official Symbol Interactor B	Synonyms Interactor A	Synonyms Interactor B	Experimental System	Experimental System Type	Author	Publication Source	Organism ID Interactor A	Organism ID Interactor B	Throughput	Score	Modification	Qualifications	Tags	Source Database	SWISS-PROT Accessions Interactor A	TREMBL Accessions Interactor A	REFSEQ Accessions Interactor A	SWISS-PROT Accessions Interactor B	TREMBL Accessions Interactor B	REFSEQ Accessions Interactor B	Organism Name Interactor A	Organism Name Interactor B
+1001	-	-	-	-	-	-	EGFR	SHC1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P00533	-	-	P29353	-	-	Homo sapiens	Homo sapiens
+1002	-	-	-	-	-	-	SHC1	GRB2	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P29353	-	-	P62993	-	-	Homo sapiens	Homo sapiens
+1003	-	-	-	-	-	-	GRB2	SOS1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P62993	-	-	Q07889	-	-	Homo sapiens	Homo sapiens
+1004	-	-	-	-	-	-	SOS1	KRAS	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	Q07889	-	-	P01116	-	-	Homo sapiens	Homo sapiens
+1005	-	-	-	-	-	-	KRAS	RAF1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P01116	-	-	P04049	-	-	Homo sapiens	Homo sapiens
+1006	-	-	-	-	-	-	RAF1	MAP2K1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04049	-	-	Q02750	-	-	Homo sapiens	Homo sapiens
+1007	-	-	-	-	-	-	MAP2K1	MAPK1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	Q02750	-	-	P28482	-	-	Homo sapiens	Homo sapiens
+1008	-	-	-	-	-	-	MAPK1	STAT3	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P28482	-	-	P40763	-	-	Homo sapiens	Homo sapiens
+1009	-	-	-	-	-	-	EGFR	GAB1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P00533	-	-	Q13480	-	-	Homo sapiens	Homo sapiens
+1010	-	-	-	-	-	-	GAB1	PIK3CA	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	Q13480	-	-	P42336	-	-	Homo sapiens	Homo sapiens
+1011	-	-	-	-	-	-	PIK3CA	AKT1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P42336	-	-	P31749	-	-	Homo sapiens	Homo sapiens
+1012	-	-	-	-	-	-	AKT1	MTOR	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P31749	-	-	P42345	-	-	Homo sapiens	Homo sapiens
+1013	-	-	-	-	-	-	PTEN	AKT1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P60484	-	-	P31749	-	-	Homo sapiens	Homo sapiens
+1014	-	-	-	-	-	-	TP53	ATM	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04637	-	-	Q13315	-	-	Homo sapiens	Homo sapiens
+1015	-	-	-	-	-	-	ATM	CHEK2	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	Q13315	-	-	O96017	-	-	Homo sapiens	Homo sapiens
+1016	-	-	-	-	-	-	CHEK2	BRCA1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	O96017	-	-	P38398	-	-	Homo sapiens	Homo sapiens
+1017	-	-	-	-	-	-	BRCA1	RAD51	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P38398	-	-	Q06609	-	-	Homo sapiens	Homo sapiens
+1018	-	-	-	-	-	-	TP53	MDM2	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04637	-	-	Q00987	-	-	Homo sapiens	Homo sapiens
+1019	-	-	-	-	-	-	TP53	CDKN1A	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04637	-	-	P38936	-	-	Homo sapiens	Homo sapiens
+1020	-	-	-	-	-	-	AKT1	GSK3B	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P31749	-	-	P49841	-	-	Homo sapiens	Homo sapiens
+1021	-	-	-	-	-	-	ERBB2	SHC1	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04626	-	-	P29353	-	-	Homo sapiens	Homo sapiens
+1022	-	-	-	-	-	-	ERBB2	PIK3CA	-	-	Affinity Capture-MS	physical	-	-	9606	9606	Low Throughput	-	-	-	-	BioGRID	P04626	-	-	P42336	-	-	Homo sapiens	Homo sapiens

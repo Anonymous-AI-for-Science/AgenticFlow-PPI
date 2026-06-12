@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentflow-ppi"
+version = "1.0.0"
+description = "Cost-based learned-operator execution for multimodal protein interaction graph queries with SHRC reachability indexing and Apple-Silicon-aware research automation"
+requires-python = ">=3.10"
+authors = [
+  {name = "AgentFlow-PPI Artifact"}
+]
+dependencies = [
+  "requests>=2.31",
+  "torch>=2.0",
+  "torch-geometric>=2.5",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "h5py>=3.10",
+  "pyyaml>=6.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentflow_ppi*"]
+
+

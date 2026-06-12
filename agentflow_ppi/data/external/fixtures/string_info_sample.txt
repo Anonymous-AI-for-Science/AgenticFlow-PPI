@@ -1,0 +1,24 @@
+#string_protein_id	preferred_name	protein_size	annotation
+9606.ENSP00000275493	EGFR	1210	Epidermal growth factor receptor
+9606.ENSP00000269571	ERBB2	1255	Receptor tyrosine-protein kinase erbB-2
+9606.ENSP00000339007	SHC1	583	SHC-transforming protein 1
+9606.ENSP00000339299	GRB2	217	Growth factor receptor-bound protein 2
+9606.ENSP00000384675	SOS1	1333	Son of sevenless homolog 1
+9606.ENSP00000256078	KRAS	189	GTPase KRas
+9606.ENSP00000451828	RAF1	648	RAF proto-oncogene serine/threonine-protein kinase
+9606.ENSP00000262189	MAP2K1	393	Dual specificity mitogen-activated protein kinase kinase 1
+9606.ENSP00000215832	MAPK1	360	Mitogen-activated protein kinase 1
+9606.ENSP00000264657	STAT3	770	Signal transducer and activator of transcription 3
+9606.ENSP00000361021	PIK3CA	1068	PI3-kinase catalytic subunit alpha
+9606.ENSP00000346839	GAB1	694	GRB2-associated-binding protein 1
+9606.ENSP00000270202	AKT1	480	RAC-alpha serine/threonine-protein kinase
+9606.ENSP00000361423	MTOR	2549	Serine/threonine-protein kinase mTOR
+9606.ENSP00000269305	TP53	393	Cellular tumor antigen p53
+9606.ENSP00000278616	ATM	3056	Serine-protein kinase ATM
+9606.ENSP00000265433	CHEK2	543	Serine/threonine-protein kinase Chk2
+9606.ENSP00000418960	BRCA1	1863	Breast cancer type 1 susceptibility protein
+9606.ENSP00000357869	RAD51	339	DNA repair protein RAD51 homolog 1
+9606.ENSP00000354558	MDM2	491	E3 ubiquitin-protein ligase Mdm2
+9606.ENSP00000228682	CDKN1A	164	Cyclin-dependent kinase inhibitor 1
+9606.ENSP00000343741	PTEN	403	Phosphatidylinositol 3,4,5-trisphosphate 3-phosphatase
+9606.ENSP00000324222	GSK3B	420	Glycogen synthase kinase-3 beta

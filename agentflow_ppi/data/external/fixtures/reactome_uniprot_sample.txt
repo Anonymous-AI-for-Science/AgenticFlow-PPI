@@ -1,0 +1,23 @@
+P00533	R-HSA-177929	https://reactome.org/PathwayBrowser/#/R-HSA-177929	Signaling by EGFR	TAS	Homo sapiens
+P04626	R-HSA-1227986	https://reactome.org/PathwayBrowser/#/R-HSA-1227986	Signaling by ERBB2	TAS	Homo sapiens
+P29353	R-HSA-177929	https://reactome.org/PathwayBrowser/#/R-HSA-177929	Signaling by EGFR	TAS	Homo sapiens
+P62993	R-HSA-179812	https://reactome.org/PathwayBrowser/#/R-HSA-179812	GRB2 events in EGFR signaling	TAS	Homo sapiens
+Q07889	R-HSA-179812	https://reactome.org/PathwayBrowser/#/R-HSA-179812	SOS-mediated signalling	TAS	Homo sapiens
+P01116	R-HSA-5673001	https://reactome.org/PathwayBrowser/#/R-HSA-5673001	RAF/MAP kinase cascade	TAS	Homo sapiens
+P04049	R-HSA-5673001	https://reactome.org/PathwayBrowser/#/R-HSA-5673001	RAF/MAP kinase cascade	TAS	Homo sapiens
+Q02750	R-HSA-5673001	https://reactome.org/PathwayBrowser/#/R-HSA-5673001	RAF/MAP kinase cascade	TAS	Homo sapiens
+P28482	R-HSA-5673001	https://reactome.org/PathwayBrowser/#/R-HSA-5673001	RAF/MAP kinase cascade	TAS	Homo sapiens
+P40763	R-HSA-8849469	https://reactome.org/PathwayBrowser/#/R-HSA-8849469	STAT3 signaling	TAS	Homo sapiens
+P42336	R-HSA-1257604	https://reactome.org/PathwayBrowser/#/R-HSA-1257604	PIP3 activates AKT signaling	TAS	Homo sapiens
+Q13480	R-HSA-177929	https://reactome.org/PathwayBrowser/#/R-HSA-177929	Signaling by EGFR	TAS	Homo sapiens
+P31749	R-HSA-1257604	https://reactome.org/PathwayBrowser/#/R-HSA-1257604	PIP3 activates AKT signaling	TAS	Homo sapiens
+P42345	R-HSA-1257604	https://reactome.org/PathwayBrowser/#/R-HSA-1257604	PIP3 activates AKT signaling	TAS	Homo sapiens
+P04637	R-HSA-69488	https://reactome.org/PathwayBrowser/#/R-HSA-69488	p53-dependent DNA damage response	TAS	Homo sapiens
+Q13315	R-HSA-69488	https://reactome.org/PathwayBrowser/#/R-HSA-69488	p53-dependent DNA damage response	TAS	Homo sapiens
+O96017	R-HSA-69488	https://reactome.org/PathwayBrowser/#/R-HSA-69488	p53-dependent DNA damage response	TAS	Homo sapiens
+P38398	R-HSA-5685942	https://reactome.org/PathwayBrowser/#/R-HSA-5685942	HDR through Homologous Recombination	TAS	Homo sapiens
+Q06609	R-HSA-5685942	https://reactome.org/PathwayBrowser/#/R-HSA-5685942	HDR through Homologous Recombination	TAS	Homo sapiens
+Q00987	R-HSA-69560	https://reactome.org/PathwayBrowser/#/R-HSA-69560	p53 regulates transcription	TAS	Homo sapiens
+P38936	R-HSA-69560	https://reactome.org/PathwayBrowser/#/R-HSA-69560	p53 regulates transcription	TAS	Homo sapiens
+P60484	R-HSA-1257604	https://reactome.org/PathwayBrowser/#/R-HSA-1257604	PIP3 activates AKT signaling	TAS	Homo sapiens
+P49841	R-HSA-1257604	https://reactome.org/PathwayBrowser/#/R-HSA-1257604	PIP3 activates AKT signaling	TAS	Homo sapiens
