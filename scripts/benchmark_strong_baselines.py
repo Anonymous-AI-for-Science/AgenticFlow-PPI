@@ -96,7 +96,7 @@ def _datasets():
         ds[f"syn-string-{size}"] = (nn, StringScaleGenerator.to_dag_edges(te))
     # real canonical export. Uses the REAL downloaded STRING/Reactome data when the
     # cache is populated (provenance=download); otherwise falls back to the bundled
-    # fixture and is labeled accordingly so the two are never confused (design rationale).
+    # fixture and is labeled accordingly so the two are never confused (reviewer W4/W5).
     try:
         from agentflow_ppi.data.external.manifest import build_manifest
         man = build_manifest(allow_online=False)

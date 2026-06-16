@@ -1,4 +1,4 @@
-"""Large-scale mixed-sign dispatch experiment (design rationale).
+"""Large-scale mixed-sign dispatch experiment (reviewer W1/W2/W3/W8/W11/W12).
 
 On a 320-node curated-pathway benchmark with 659 query families, reranking HELPS
 on the modality-informative pathways and HURTS on the rest. A calibrated dispatcher
@@ -111,7 +111,7 @@ def main():
     with (out / "large_dispatch_by_segment.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(seg_rows[0].keys())); w.writeheader(); w.writerows(seg_rows)
 
-    # Paired significance of dispatch vs each fixed policy (design rationale).
+    # Paired significance of dispatch vs each fixed policy (reviewer W1).
     disp_arr = np.array(glob["disp"]); alw_arr = np.array(glob["always"]); sym_arr = np.array(glob["sym"])
     def paired_frac_gt0(diff, seed=0):
         rng = np.random.default_rng(seed)
@@ -152,7 +152,7 @@ def main():
     }
     (out / "large_dispatch_summary.json").write_text(json.dumps(global_summary, indent=2))
 
-    # Reranker-cost sensitivity (design rationale): the dispatch latency advantage as a
+    # Reranker-cost sensitivity (reviewer W9): the dispatch latency advantage as a
     # function of the REAL per-call reranker cost, instead of a single hard-coded
     # constant. always-on pays the reranker on every query; calibrated dispatch pays
     # it only on admitted queries. We sweep realistic learned-reranker costs from a

@@ -42,30 +42,50 @@ def condense_to_dag(num_nodes: int, edges: Sequence[Edge]) -> CondensationResult
     comp_of = [-1] * num_nodes
     comp_count = 0
 
-    def strongconnect(v: int) -> None:
-        nonlocal index, comp_count
-        indices[v] = low[v] = index
-        index += 1
-        stack.append(v)
-        on_stack[v] = True
-        for w in graph[v]:
-            if indices[w] == -1:
-                strongconnect(w)
-                low[v] = min(low[v], low[w])
-            elif on_stack[w]:
-                low[v] = min(low[v], indices[w])
-        if low[v] == indices[v]:
-            while True:
-                w = stack.pop()
-                on_stack[w] = False
-                comp_of[w] = comp_count
-                if w == v:
+    # Iterative Tarjan SCC: an explicit work stack replaces Python recursion so that
+    # graphs with long directed chains (real STRING-scale snapshots have paths far
+    # deeper than the default recursion limit of ~1000) do not raise RecursionError.
+    # Each work item is (vertex, next_neighbor_index); the algorithm is identical to
+    # the textbook recursive form, only the call stack is made explicit.
+    for root in range(num_nodes):
+        if indices[root] != -1:
+            continue
+        work: List[List[int]] = [[root, 0]]
+        while work:
+            v, pi = work[-1]
+            if pi == 0:
+                indices[v] = low[v] = index
+                index += 1
+                stack.append(v)
+                on_stack[v] = True
+            recursed = False
+            i = pi
+            while i < len(graph[v]):
+                w = graph[v][i]
+                if indices[w] == -1:
+                    # "recurse" into w: resume v at the next neighbor afterwards
+                    work[-1][1] = i + 1
+                    work.append([w, 0])
+                    recursed = True
                     break
-            comp_count += 1
-
-    for v in range(num_nodes):
-        if indices[v] == -1:
-            strongconnect(v)
+                elif on_stack[w]:
+                    low[v] = min(low[v], indices[w])
+                i += 1
+            if recursed:
+                continue
+            # all neighbors processed: finish v (root-of-SCC check + popping)
+            if low[v] == indices[v]:
+                while True:
+                    w = stack.pop()
+                    on_stack[w] = False
+                    comp_of[w] = comp_count
+                    if w == v:
+                        break
+                comp_count += 1
+            work.pop()
+            if work:  # propagate low-link to the parent that recursed into v
+                parent = work[-1][0]
+                low[parent] = min(low[parent], low[v])
 
     dag = set()
     removed: List[Edge] = []

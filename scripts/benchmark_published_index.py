@@ -1,5 +1,5 @@
 """Run a PUBLISHED reachability index on our graphs and check answer-equivalence
-(design rationale).
+(reviewer R1-O2.A: "compare against at least one published reachability index").
 
 The submitted version compared SHRC only against in-tree faithful reimplementations.
 This runner closes that gap by actually executing the original authors' C++ when a
@@ -136,7 +136,7 @@ def main():
                     "elsewhere it runs the in-tree faithful reimplementation (itself "
                     "byte-checked against BFS) and labels the backend accordingly. Either "
                     "way the comparison is against a published algorithm rather than only "
-                    "our own pipeline (addresses the design goalA)."),
+                    "our own pipeline (addresses R1-O2.A)."),
     }
     (out / "published_index.json").write_text(json.dumps(report, indent=2))
     print(json.dumps(report, indent=2))

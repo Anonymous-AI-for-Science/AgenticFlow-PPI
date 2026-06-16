@@ -7,7 +7,7 @@ constrained envelope each prompt defines (plan structure, dispatch admit/decline
 provenance phrasing). This keeps the system exact and reproducible while making the
 agents real LLM participants whose prompts, messages, and token costs are measured.
 
-This addresses the design-O1.A: the planner/reachability/executor/aggregator are
+This addresses reviewer R1-O1.A: the planner/reachability/executor/aggregator are
 now instantiated as prompted LLM agents with a defined inter-agent protocol, and
 every LLM turn is recorded (backend, tokens, latency, schema validity).
 """

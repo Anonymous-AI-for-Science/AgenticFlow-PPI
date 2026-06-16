@@ -1,4 +1,4 @@
-"""Test the linear-vs-learned cost-model comparison (design rationale)."""
+"""Test the linear-vs-learned cost-model comparison (R3-O4/O5)."""
 
 import importlib.util
 from pathlib import Path

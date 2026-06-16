@@ -207,7 +207,7 @@ class SHRCIndex:
         (iii) the periphery interval labels: each tree node stores an interval
         (interval_in, interval_out) plus a parent pointer = 3 integer entries by
         default. Earlier versions omitted (iii), which understated SHRC's footprint
-        relative to a full-graph PLL; this method closes that gap (design rationale)."""
+        relative to a full-graph PLL; this method closes that gap (reviewer W1)."""
         if self.stats is None:
             raise RuntimeError("Index has not been built yet.")
         core = sum(len(v) for v in self.core_out_labels.values()) + \

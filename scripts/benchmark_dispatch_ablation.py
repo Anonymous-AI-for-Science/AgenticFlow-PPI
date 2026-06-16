@@ -1,11 +1,11 @@
 """Dispatch ablation, plan-selection, and gain-predictor calibration.
 
-All experiments use the shared pathway-grounded harness (design rationale). With
+All experiments use the shared pathway-grounded harness (reviewer E1). With
 independent labels the learned reranker does NOT beat symbolic ranking on this
 workload, so the systems value of cost-aware dispatch is precisely that it
 SUPPRESSES an operator that would otherwise cost quality and latency. This script
-shows that, isolates the dispatch policy from the reranker (design rationale), and
-calibrates the gain predictor against realized F1 lift (design rationale).
+shows that, isolates the dispatch policy from the reranker (reviewer R2-O3), and
+calibrates the gain predictor against realized F1 lift (reviewer E4).
 """
 
 from __future__ import annotations
@@ -107,7 +107,7 @@ def main():
     }
     (out / "plan_selection_disagreement.json").write_text(json.dumps(ps, indent=2))
 
-    # Gain-predictor calibration (design rationale).
+    # Gain-predictor calibration (reviewer E4).
     cp = np.array(calib_pred); cr = np.array(calib_real)
     if len(cp) >= 3 and np.std(cp) > 1e-9 and np.std(cr) > 1e-9:
         pear = float(np.corrcoef(cp, cr)[0, 1])

@@ -21,6 +21,11 @@ class MPSExecutionConfig:
     ----------
     prefer_mps:
         If true, prefer the Apple Metal backend whenever it is available.
+    prefer_cuda:
+        If true, prefer an NVIDIA CUDA device when available (e.g. on Ubuntu
+        hosts with a GPU). CUDA is checked before MPS; both fall back to CPU,
+        so the same code path runs on Ubuntu (CUDA or CPU), macOS Intel (CPU),
+        and Apple Silicon (MPS).
     per_process_memory_fraction:
         Upper bound for the fraction of the recommended MPS working set that the
         current process may reserve. The call is ignored on non-MPS devices.
@@ -32,6 +37,7 @@ class MPSExecutionConfig:
     """
 
     prefer_mps: bool = True
+    prefer_cuda: bool = True
     per_process_memory_fraction: float = 0.80
     synchronize_on_barrier: bool = False
 
@@ -41,7 +47,9 @@ class DeviceManager:
 
     The manager exposes a single torch.device so that all agents in the R&D
     automation stack share the same accelerator context. This avoids repeated
-    device detection and makes batching straightforward.
+    device detection and makes batching straightforward. Selection order is
+    CUDA (Ubuntu/GPU) then MPS (Apple Silicon) then CPU (macOS Intel and any
+    accelerator-free host), so one code path covers all three target platforms.
     """
 
     def __init__(self, config: MPSExecutionConfig | None = None) -> None:
@@ -50,7 +58,10 @@ class DeviceManager:
         self._configure_runtime()
 
     def _resolve_device(self) -> torch.device:
-        if self.config.prefer_mps and torch.backends.mps.is_available():
+        if self.config.prefer_cuda and torch.cuda.is_available():
+            return torch.device("cuda")
+        if (self.config.prefer_mps and hasattr(torch.backends, "mps")
+                and torch.backends.mps.is_available()):
             return torch.device("mps")
         return torch.device("cpu")
 
@@ -71,26 +82,38 @@ class DeviceManager:
 
     def barrier(self) -> None:
         """Synchronize only when the selected device and configuration require it."""
-        if self.device.type == "mps" and self.config.synchronize_on_barrier and hasattr(torch, "mps"):
+        if not self.config.synchronize_on_barrier:
+            return
+        if self.device.type == "cuda":
+            torch.cuda.synchronize()
+        elif self.device.type == "mps" and hasattr(torch, "mps"):
             torch.mps.synchronize()
 
     def empty_cache(self) -> None:
-        if self.device.type == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+        if self.device.type == "cuda":
+            torch.cuda.empty_cache()
+        elif self.device.type == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
             torch.mps.empty_cache()
 
     def report(self) -> Dict[str, int | float | bool | str | None]:
         """Return capability and memory telemetry for logging.
 
-        The function is safe on CPU-only machines. On MPS devices it also
-        exposes allocator telemetry, which is useful when tuning asynchronous
-        batching on memory-constrained laptops.
+        Safe on every target platform: Ubuntu (CUDA or CPU), macOS Intel (CPU,
+        possibly without an mps backend in the torch build), and Apple Silicon
+        (MPS). Accelerator telemetry is added only for the selected backend.
         """
+        _mps = getattr(torch.backends, "mps", None)
         report: Dict[str, int | float | bool | str | None] = {
             "device": self.device.type,
-            "mps_built": bool(torch.backends.mps.is_built()),
-            "mps_available": bool(torch.backends.mps.is_available()),
+            "cuda_available": bool(torch.cuda.is_available()),
+            "mps_built": bool(_mps.is_built()) if _mps is not None else False,
+            "mps_available": bool(_mps.is_available()) if _mps is not None else False,
         }
-        if self.device.type == "mps" and hasattr(torch, "mps"):
+        if self.device.type == "cuda":
+            report["cuda_device_name"] = torch.cuda.get_device_name(0)
+            report["cuda_mem_allocated"] = int(torch.cuda.memory_allocated())
+            report["cuda_mem_reserved"] = int(torch.cuda.memory_reserved())
+        elif self.device.type == "mps" and hasattr(torch, "mps"):
             for name in [
                 "current_allocated_memory",
                 "driver_allocated_memory",

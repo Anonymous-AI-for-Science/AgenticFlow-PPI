@@ -1,4 +1,4 @@
-"""Tests for the Ollama-backed LLM multi-agent layer (design rationale).
+"""Tests for the Ollama-backed LLM multi-agent layer (reviewer R1-O1.A).
 
 These run fully offline (force_offline=True) so they are deterministic and need no
 Ollama server, while still exercising the real prompt rendering, JSON parsing,

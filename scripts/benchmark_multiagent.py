@@ -1,6 +1,6 @@
 """End-to-end multi-agent execution measurement.
 
-Answers practitioner concern O1.A (R1) and O1 (R2): the multi-agent layer named in
+Answers reviewer concern O1.A (R1) and O1 (R2): the multi-agent layer named in
 the title is now instantiated AND measured. For every biological query we run the
 full Planner -> Executor -> Reachability -> Executor(dispatch) -> Aggregator flow
 through the orchestrator and record:
@@ -113,7 +113,7 @@ def main():
             continue
         # Restrict to exactly the pathway-grounded, label-evaluable query set used
         # by every quality experiment so the reported cardinality is consistent
-        # across the whole paper (design rationale): N = 17.
+        # across the whole paper (reviewer E1): N = 17.
         if f"{q['source']}->{q['target']}" not in _harness_keys:
             continue
         modality = q["modality"]

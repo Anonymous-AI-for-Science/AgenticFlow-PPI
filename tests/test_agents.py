@@ -73,7 +73,7 @@ def test_dispatch_is_selective():
 
 def test_large_benchmark_is_mixed_sign():
     """The large pathway benchmark must produce a workload where reranking helps
-    on informative pathways and not on the rest (design rationale)."""
+    on informative pathways and not on the rest (reviewer W2/W8/W12)."""
     from agentflow_ppi.eval.harness import (
         build_harness_large, train_reranker, rerank, symbolic_order, f1_at_k,
     )
@@ -100,7 +100,7 @@ def test_large_benchmark_is_mixed_sign():
 
 def test_gain_predictor_discriminates():
     """The calibrated gain predictor must admit more on informative than on
-    non-informative queries (design rationale)."""
+    non-informative queries (reviewer W1/W8)."""
     from agentflow_ppi.eval.harness import build_harness_large, train_gain_predictor, predict_gain
     import numpy as np, statistics
     h = build_harness_large(num_pathways=20, pathway_len=6, informative_fraction=0.5, seed=13, max_hops=3)

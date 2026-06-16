@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentflow-ppi"
-version = "1.0.0"
+version = "0.7.0"
 description = "Cost-based learned-operator execution for multimodal protein interaction graph queries with SHRC reachability indexing and Apple-Silicon-aware research automation"
 requires-python = ">=3.10"
 authors = [

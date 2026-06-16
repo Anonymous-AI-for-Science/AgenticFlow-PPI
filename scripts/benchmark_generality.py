@@ -1,6 +1,6 @@
-"""Domain-generality of SHRC + cost-aware dispatch on non-PPI graphs (design rationale).
+"""Domain-generality of SHRC + cost-aware dispatch on non-PPI graphs (R3-O2).
 
-the design goal: "the workload is tightly coupled to STRING and PPI graphs, and the paper does
+R3-O2: "the workload is tightly coupled to STRING and PPI graphs, and the paper does
 not demonstrate how the techniques extend to generic multimodal graphs or how they
 would integrate with existing DBMS optimizers."
 
@@ -183,7 +183,7 @@ def main():
                     "selectivity-driven dispatch signal are domain-generic rather than "
                     "PPI-specific. Routing the same edge relation through SQLite's "
                     "optimizer (a real DBMS query planner) with no PPI-specific code "
-                    "demonstrates integration with an existing optimizer (design rationale)."),
+                    "demonstrates integration with an existing optimizer (R3-O2)."),
     }
     (out / "generality.json").write_text(json.dumps(report, indent=2))
     with (out / "generality.csv").open("w", newline="") as f:

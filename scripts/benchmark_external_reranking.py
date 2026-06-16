@@ -32,6 +32,84 @@ SYMBOLIC_MS = 0.05
 RERANK_MS = 0.9
 
 
+# --------------------------------------------------------------------------- #
+# Lightweight progress reporting
+# --------------------------------------------------------------------------- #
+# Uses tqdm when available (nice rendering), otherwise a dependency-free fallback
+# bar so the Tier-0 "numpy only" install still shows progress. All output goes to
+# stderr so it never pollutes the JSON written to stdout.
+import sys as _sys
+import time as _time
+
+try:
+    from tqdm import tqdm as _tqdm  # type: ignore
+
+    def progress(iterable=None, total=None, desc="", leave=True):
+        return _tqdm(iterable, total=total, desc=desc, unit="it",
+                     dynamic_ncols=True, file=_sys.stderr, leave=leave)
+
+    def _phase(desc):
+        print(f"\033[1m▶ {desc}\033[0m", file=_sys.stderr, flush=True)
+    _HAS_TQDM = True
+except Exception:  # noqa: BLE001
+    _HAS_TQDM = False
+
+    class _FallbackBar:
+        """Minimal stderr progress bar: no third-party deps, carriage-return based."""
+        def __init__(self, total=None, desc="", width=32):
+            self.total = total if (total and total > 0) else None
+            self.desc = desc
+            self.width = width
+            self.n = 0
+            self.t0 = _time.time()
+            self._render()
+
+        def _render(self):
+            elapsed = _time.time() - self.t0
+            if self.total:
+                frac = min(1.0, self.n / self.total)
+                filled = int(self.width * frac)
+                bar = "█" * filled + "░" * (self.width - filled)
+                rate = self.n / elapsed if elapsed > 0 else 0.0
+                eta = (self.total - self.n) / rate if rate > 0 else 0.0
+                msg = (f"\r  {self.desc:<28} |{bar}| "
+                       f"{self.n}/{self.total} ({frac*100:5.1f}%) "
+                       f"[{elapsed:5.1f}s, ETA {eta:5.1f}s]")
+            else:
+                spin = "|/-\\"[self.n % 4]
+                msg = (f"\r  {self.desc:<28} {spin} {self.n} it "
+                       f"[{elapsed:5.1f}s]")
+            print(msg, end="", file=_sys.stderr, flush=True)
+
+        def update(self, k=1):
+            self.n += k
+            self._render()
+
+        def close(self):
+            self._render()
+            print("", file=_sys.stderr, flush=True)
+
+        def __iter__(self):
+            return self
+
+    def progress(iterable=None, total=None, desc="", leave=True):
+        if iterable is None:
+            return _FallbackBar(total=total, desc=desc)
+        if total is None:
+            try:
+                total = len(iterable)
+            except TypeError:
+                total = None
+        bar = _FallbackBar(total=total, desc=desc)
+        for item in iterable:
+            yield item
+            bar.update(1)
+        bar.close()
+
+    def _phase(desc):
+        print(f"\n\033[1m> {desc}\033[0m", file=_sys.stderr, flush=True)
+
+
 def _build_graph(manifest):
     names, typed_adj, edges = {}, defaultdict(list), []
     def nid(x):
@@ -73,9 +151,10 @@ def _f1at2(ranked, pos):
     return 0.0 if p + r == 0 else 2 * p * r / (p + r)
 
 
-def _train_reranker(pools, train_idx, typed_adj, seed):
+def _train_reranker(pools, train_idx, typed_adj, seed, desc_prefix=""):
     rng = np.random.default_rng(seed); X, y = [], []
-    for i in train_idx:
+    for i in progress(train_idx, total=len(train_idx),
+                      desc=f"{desc_prefix}reranker: features", leave=False):
         p = pools[i]
         for v in p["cands"]:
             X.append(_feat(typed_adj, p["s"], v, p["t"], p["modality"]))
@@ -85,7 +164,8 @@ def _train_reranker(pools, train_idx, typed_adj, seed):
     X = np.array(X); y = np.array(y)
     mu, sd = X.mean(0), X.std(0) + 1e-9; Xs = (X - mu) / sd
     w = rng.normal(0, 0.01, X.shape[1]); b = 0.0
-    for _ in range(300):
+    ITERS = 300
+    for _ in progress(range(ITERS), total=ITERS, desc=f"{desc_prefix}reranker: 300-iter GD", leave=False):
         pr = 1 / (1 + np.exp(-(Xs @ w + b)))
         w -= 0.1 * (Xs.T @ (pr - y) / len(y) + 1e-4 * w); b -= 0.1 * float(np.mean(pr - y))
     return (w, b, mu, sd)
@@ -114,9 +194,10 @@ def _query_gain_feats(pools, i, typed_adj):
                      statistics.pstdev(ps) if len(ps) > 1 else 0.0, mismatch, corr])
 
 
-def _train_gain(pools, train_idx, typed_adj, model):
+def _train_gain(pools, train_idx, typed_adj, model, desc_prefix=""):
     X, y = [], []
-    for i in train_idx:
+    for i in progress(train_idx, total=len(train_idx),
+                      desc=f"{desc_prefix}gain predictor: fit", leave=False):
         r = _f1at2(_rerank(model, pools, i, typed_adj), pools[i]["pos"])
         s = _f1at2(_symbolic(pools, i, typed_adj), pools[i]["pos"])
         X.append(_query_gain_feats(pools, i, typed_adj)); y.append(r - s)
@@ -141,11 +222,16 @@ def _bootstrap_ci(xs, seed=0, n=2000):
     return [round(float(np.percentile(m, 2.5)), 4), round(float(np.percentile(m, 97.5)), 4)]
 
 
-def _evaluate(manifest, split_fn, split_name):
+def _evaluate(manifest, split_fn, split_name, seeds=None, max_queries=None):
+    seeds = seeds if seeds is not None else SEEDS
+    _phase(f"[{split_name}] building typed graph + SHRC index")
     names, typed_adj, edges = _build_graph(manifest)
     n = len(names)
     cond = condense_to_dag(n, edges); comp = cond.component_of
     shrc = SHRCIndex.from_edges(num_nodes=cond.num_components, edges=cond.dag_edges).build()
+    print(f"    graph: {n} nodes, {len(edges)} edges -> "
+          f"{cond.num_components} SCC-condensed nodes, "
+          f"{len(cond.dag_edges)} DAG edges", file=_sys.stderr, flush=True)
     def reach(a, b):
         return comp[a] == comp[b] or shrc.reachable(comp[a], comp[b])
 
@@ -162,7 +248,12 @@ def _evaluate(manifest, split_fn, split_name):
         return out
 
     pools, q_pathway = [], []
-    for q in manifest.queries:
+    # Optional deterministic subsample for fast runs (disclosed in output JSON).
+    # Sorted by query id then truncated so the subset is reproducible, not cherry-picked.
+    _queries = manifest.queries
+    if max_queries is not None and max_queries < len(_queries):
+        _queries = sorted(_queries, key=lambda q: q.get("qid", str(q.get("source", ""))))[:max_queries]
+    for q in progress(_queries, total=len(_queries), desc=f"[{split_name}] candidate pools"):
         if q["source"] not in names or q["target"] not in names:
             continue
         s, t = names[q["source"]], names[q["target"]]
@@ -176,6 +267,7 @@ def _evaluate(manifest, split_fn, split_name):
         modality = "regulatory"
         pools.append({"s": s, "t": t, "modality": modality, "cands": cands, "pos": pos})
         q_pathway.append(q["pathway"])
+    print(f"    kept {len(pools)} pathway-grounded query pools", file=_sys.stderr, flush=True)
 
     if len(pools) < 4:
         return {"split": split_name, "n_queries": len(pools),
@@ -194,15 +286,17 @@ def _evaluate(manifest, split_fn, split_name):
         })
 
     sym_f1, alw_f1, disp_f1, admit, seg_helps = [], [], [], [], []
-    for seed in SEEDS:
+    _phase(f"[{split_name}] training + evaluating over {len(seeds)} seeds")
+    for si, seed in enumerate(progress(seeds, desc=f"[{split_name}] seeds"), 1):
         tr, te = split_fn(pool_queries, seed=seed)
         if not tr or not te:
             continue
-        model = _train_reranker(pools, tr, typed_adj, seed)
+        sp = f"    seed {seed} [{si}/{len(seeds)}] "
+        model = _train_reranker(pools, tr, typed_adj, seed, desc_prefix=sp)
         if model is None:
             continue
-        pred = _train_gain(pools, tr, typed_adj, model)
-        for i in te:
+        pred = _train_gain(pools, tr, typed_adj, model, desc_prefix=sp)
+        for i in progress(te, total=len(te), desc=f"{sp}eval: test queries", leave=False):
             s = _f1at2(_symbolic(pools, i, typed_adj), pools[i]["pos"])
             r = _f1at2(_rerank(model, pools, i, typed_adj), pools[i]["pos"])
             g = _predict_gain(pred, pools, i, typed_adj)
@@ -225,22 +319,59 @@ def _evaluate(manifest, split_fn, split_name):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="External reranking benchmark "
+        "(protein/pathway-disjoint). Fast-run flags subsample queries/seeds "
+        "deterministically for time-boxed runs; the chosen config is recorded "
+        "in the output JSON for full disclosure.")
+    ap.add_argument("--quick", action="store_true",
+                    help="time-boxed preset: 2 seeds, max 4000 queries per split")
+    ap.add_argument("--seeds", type=str, default=None,
+                    help="comma-separated seeds (default: 7,13,23,37,101)")
+    ap.add_argument("--max-queries", type=int, default=None,
+                    help="cap queries per split (deterministic sorted subsample)")
+    args = ap.parse_args()
+
+    seeds = SEEDS
+    max_queries = None
+    if args.quick:
+        seeds = [7, 13]; max_queries = 4000
+    if args.seeds:
+        seeds = [int(x) for x in args.seeds.split(",") if x.strip()]
+    if args.max_queries is not None:
+        max_queries = args.max_queries
+
     root = Path(__file__).resolve().parents[1]
     out = root / "results"; out.mkdir(parents=True, exist_ok=True)
+    print(f"progress bar backend: {'tqdm' if _HAS_TQDM else 'builtin (pip install tqdm for nicer output)'}",
+          file=_sys.stderr, flush=True)
+    if max_queries is not None or seeds != SEEDS:
+        print(f"    [fast-run] seeds={seeds}, max_queries={max_queries} "
+              f"(subsample is deterministic and recorded in the JSON; "
+              f"run with no flags for the full configuration)", file=_sys.stderr, flush=True)
+    _phase("loading external manifest (download cache or bundled fixture)")
     manifest = build_manifest(cache_dir=DEFAULT_CACHE, allow_online=True)
     using_fixture = any(v == "fixture" for v in manifest.provenance.values())
+    print(f"    manifest: {len(manifest.queries)} queries, "
+          f"{len(manifest.pathway_members)} pathways, "
+          f"using_fixture={using_fixture}", file=_sys.stderr, flush=True)
 
     results = {
         "provenance": manifest.provenance,
         "using_fixture": using_fixture,
+        "run_config": {"seeds": seeds, "max_queries": max_queries,
+                       "full_config": (max_queries is None and seeds == SEEDS)},
         "graph_proteins": len({a for a, *_ in manifest.edges} | {b for _, b, *_ in manifest.edges}),
         "graph_edges": len(manifest.edges),
         "num_pathways": len(manifest.pathway_members),
         "num_queries": len(manifest.queries),
-        "pathway_disjoint": _evaluate(manifest, S.pathway_disjoint_split, "pathway-disjoint"),
-        "protein_disjoint": _evaluate(manifest, S.protein_disjoint_split, "protein-disjoint"),
+        "pathway_disjoint": _evaluate(manifest, S.pathway_disjoint_split, "pathway-disjoint",
+                                      seeds=seeds, max_queries=max_queries),
+        "protein_disjoint": _evaluate(manifest, S.protein_disjoint_split, "protein-disjoint",
+                                      seeds=seeds, max_queries=max_queries),
     }
     (out / "external_reranking_results.json").write_text(json.dumps(results, indent=2))
+    _phase("done — results written to results/external_reranking_results.json")
     print(json.dumps(results, indent=2))
     if using_fixture:
         print("\n[NOTE] Ran on bundled FIXTURES (source hosts unreachable). "

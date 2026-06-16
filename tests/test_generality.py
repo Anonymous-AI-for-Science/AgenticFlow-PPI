@@ -1,4 +1,4 @@
-"""Test domain-generality (design rationale): SHRC stays exact on non-PPI graphs and composes
+"""Test domain-generality (R3-O2): SHRC stays exact on non-PPI graphs and composes
 with the SQLite engine; the residual-core advantage is structure-dependent (honest)."""
 
 import importlib.util

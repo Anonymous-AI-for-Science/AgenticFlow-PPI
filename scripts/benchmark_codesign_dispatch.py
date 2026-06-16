@@ -1,4 +1,4 @@
-"""Index/optimizer co-design experiment (design rationale).
+"""Index/optimizer co-design experiment (reviewer W7).
 
 The paper claims SHRC is designed so the dispatch decision is answerable in O(1)
 from the SAME labels that answer reachability, rather than requiring a separate

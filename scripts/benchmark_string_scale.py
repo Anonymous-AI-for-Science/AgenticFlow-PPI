@@ -1,6 +1,6 @@
 """STRING-scale SHRC measurement at 5k, 10k, and 20k nodes.
 
-Answers practitioner concerns O2.B / O3 (scale): instead of extrapolating from a
+Answers reviewer concerns O2.B / O3 (scale): instead of extrapolating from a
 5k-node subset, we MEASURE SHRC build time, index size, residual-core ratio,
 and point-query latency on STRING-structured graphs up to the full ~20k-protein
 v12 family scale. Deterministic given seeds; aggregates over a seed manifest.

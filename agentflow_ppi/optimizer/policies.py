@@ -122,7 +122,7 @@ def evaluate_policy(policy: Policy, table: Dict[int, Dict[str, Trace]], qids: Li
                     violation_penalty: bool = True) -> Dict[str, List[float]]:
     """Return realized quality and cost for the policy's chosen plan per query.
 
-    Unified hard-budget scoring (design rationale): when a budget is given and the chosen
+    Unified hard-budget scoring (reviewer W1): when a budget is given and the chosen
     plan exceeds it, the query is counted as a budget violation AND its scored quality
     is the budget-feasible fallback's quality (the best plan whose cost <= budget),
     i.e. the system must fall back to stay within budget. This makes the oracle a true

@@ -1,6 +1,6 @@
 """SHRC larger-core ablation, build-time breakdown, and fallback activation.
 
-Addresses the design (compare against a tuned witness-order baseline on
+Addresses reviewer W9 (compare against a tuned witness-order baseline on
 NON-degenerate cores where variants diverge) and W10 (foreground the O(|C|^3)
 greedy build term with a measured breakdown, and exercise the approximate-core
 fallback on a core that actually triggers it).
@@ -39,7 +39,7 @@ def larger_core_ablation(root):
     """On cores large enough to diverge, compare the released default PLL hub order
     (degree/centrality) against a benefit-rank order. Both are exact pruned 2-hop
     labelings; the comparison shows which ordering yields the smaller index at
-    scale (design rationale). 'degree' is the standard PLL heuristic and the default."""
+    scale (reviewer W5/W6). 'degree' is the standard PLL heuristic and the default."""
     rows = []
     for sigma in [0.10, 0.20, 0.35]:
         for seed in [7, 13, 23]:
@@ -147,7 +147,7 @@ def full_pll_entries(n, dag_edges):
 
 def peeling_benefit(root):
     """Full-graph exact PLL vs SHRC (forest-peel + core PLL) total index size on
-    identical graphs (design rationale): shows forest peeling reduces the labeling."""
+    identical graphs (reviewer W6): shows forest peeling reduces the labeling."""
     rows = []
     for sigma in [0.05, 0.10, 0.20]:
         cfg = StringScaleConfig(num_nodes=3000, target_sigma=sigma, core_density=0.25, seed=7)
@@ -158,7 +158,7 @@ def peeling_benefit(root):
         s = shrc.stats
         # Fair, single-unit count: core 2-hop labels + exit anchors + periphery
         # interval/parent labels (3 per tree node), comparable to the full-graph
-        # PLL count which labels every node (design rationale).
+        # PLL count which labels every node (reviewer W1).
         shrc_entries = shrc.total_index_entries()
         shrc_core_only = (sum(len(v) for v in shrc.core_out_labels.values())
                           + sum(len(v) for v in shrc.core_in_labels.values())

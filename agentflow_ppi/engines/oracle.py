@@ -53,10 +53,21 @@ def build_oracle(nodes: Dict[int, str], edges) -> Oracle:
     return Oracle(succ, nodes)
 
 
-def oracle_answers(nodes, edges, queries) -> Dict[int, Set[int]]:
-    """qid -> exact gold-mediator answer set."""
+def oracle_answers(nodes, edges, queries, progress_cb=None) -> Dict[int, Set[int]]:
+    """qid -> exact gold-mediator answer set.
+
+    `progress_cb`, if given, is called as progress_cb(done, total) after each
+    query's BFS so a caller can render a progress bar; building the oracle is the
+    per-query BFS loop and is the part that takes time on large graphs.
+    """
     oracle = build_oracle(nodes, edges)
-    return {q["qid"]: oracle.mediators(q["source"], q["target"], q["gold"]) for q in queries}
+    total = len(queries)
+    out: Dict[int, Set[int]] = {}
+    for i, q in enumerate(queries, 1):
+        out[q["qid"]] = oracle.mediators(q["source"], q["target"], q["gold"])
+        if progress_cb is not None:
+            progress_cb(i, total)
+    return out
 
 
 @dataclass

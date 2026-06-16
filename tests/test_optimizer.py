@@ -75,7 +75,7 @@ def test_regret_bound_holds():
 
 def test_codesign_label_only_matches_recompute():
     """The O(1) label-only dispatch signal must yield the same decision as a fresh
-    recomputation (design rationale)."""
+    recomputation (reviewer W7: co-design is correct, not just faster)."""
     from agentflow_ppi.eval.harness import build_harness_large
     from collections import deque
     h = build_harness_large(num_pathways=10, pathway_len=6, informative_fraction=0.5,

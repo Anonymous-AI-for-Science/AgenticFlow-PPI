@@ -1,4 +1,4 @@
-"""Tests for the system-level pipeline baselines and published-index runner (design rationale)."""
+"""Tests for the system-level pipeline baselines and published-index runner (R1-O2)."""
 
 import importlib.util
 from pathlib import Path

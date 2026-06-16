@@ -1,6 +1,6 @@
 """Biological reranking benchmark with INDEPENDENT pathway ground truth.
 
-Design note: gold mediators are now defined by curated canonical-pathway
+Reviewer A1 fix: gold mediators are now defined by curated canonical-pathway
 membership (agentflow_ppi/data/pathway_ground_truth), a label source that does
 NOT reference edge confidence or modality counts -- the reranker's features.
 This removes the previous circularity where the label-defining signal was also a

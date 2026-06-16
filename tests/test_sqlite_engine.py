@@ -1,4 +1,4 @@
-"""Test the SQLite recursive-CTE engine (design rationale): a real SQL engine, no server, that
+"""Test the SQLite recursive-CTE engine (R2-O2): a real SQL engine, no server, that
 answers reachability exactly (verified against the BFS oracle)."""
 
 import csv

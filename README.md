@@ -1,158 +1,142 @@
-# AgentFlow-PPI
+# AgentFlow-PPI code artifact
 
-Cost-based execution for multimodal protein-interaction graph queries. AgentFlow-PPI
-answers exact typed reachability over a multi-modal directed graph while deciding, under
-a resource budget, whether a learned reranking operator should be admitted to reorder
-the answer. It combines:
+## Environment
 
-- **SHRC** — an exact, sparsity-aware hybrid reachability index (interval labeling on a
-  sparse periphery + a coverage-pruned 2-hop cover on the residual core);
-- a **cost-aware dispatch** layer that prices a learned reranker against exact graph
-  operators and admits it only when a calibrated predictor estimates the quality gain
-  exceeds the measured cost;
-- a small set of **specialized agents** (planner, reachability, executor, aggregator)
-  that exchange messages over a shared bus, optionally instantiated as prompted LLMs
-  over a local Ollama runtime;
-- a **plan-space optimizer** (physical operators, enumerated plans, learned cost/quality
-  models) with a per-query regret bound.
+- Python 3.13.5
+- PyTorch 2.10.0+cpu
+- PyTorch Geometric
+- Ollama running locally for the planner
+- Apple Silicon optional: M1/M2/M3 with the PyTorch `mps` backend enabled
 
-All quality experiments use an independent canonical-pathway ground truth that
-references none of the reranker's features, so the evaluation is leakage-controlled.
-
----
-
-## Repository layout
-
-```
-agentflow_ppi/        # the library
-  reachability/       # SHRC index
-  engines/            # in-process SHRC + SQLite/PostgreSQL/Neo4j/TigerGraph adapters
-  optimizer/          # plan-space optimizer, cost/quality models, regret bound
-  agents/             # planner/reachability/executor/aggregator + LLM (Ollama) layer
-  benchmarks/         # reachability baselines, strong baselines, modality labeling
-  data/               # synthetic + external (STRING/BioGRID/Reactome) loaders
-  eval/               # shared evaluation harness (independent pathway labels)
-scripts/              # one runnable experiment per file; run_all_experiments.py runs them
-tests/                # deterministic test suite
-examples/             # minimal usage examples
-```
-
----
-
-## Installation (pyenv + virtualenv)
-
-The package is layered so you install only what you need. Most experiments need only
-NumPy.
+## Install
 
 ```bash
-# Python 3.11 (>=3.10 supported)
-pyenv install 3.11.9
-pyenv virtualenv 3.11.9 agentflow-ppi
-pyenv local agentflow-ppi          # or: python -m virtualenv .venv && source .venv/bin/activate
-pip install --upgrade pip setuptools wheel
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -r requirements.txt
+pip install -e .
 ```
 
-### Tier 0 — core (NumPy only): the fast path
+## Graph query pipeline
 
-Reproduces the full test suite and every deterministic experiment with no GPU and no
-servers.
+### Train on synthetic data
 
 ```bash
-pip install numpy
-pip install -e . --no-deps          # install the package without pulling torch etc.
-python -m pytest tests/ -q          # expect 40 passed
+python scripts/train_model.py --num-graphs 128 --epochs 10
 ```
 
-### Optional tiers
-
-| Add | Enables |
-|-----|---------|
-| `pip install duckdb` | DuckDB recursive-SQL end-to-end baseline |
-| `pip install scikit-learn` | gradient-boosted learned cost model (else a NumPy fallback is used) |
-| `pip install torch torch-geometric pandas h5py pyyaml` | training the GNN reranker (`scripts/train_model.py`) |
-| `pip install requests` | downloading the real STRING/BioGRID/Reactome/OmniPath data |
-| local Ollama runtime | running the agents as prompted LLMs |
-| Docker (`postgres:16`, `neo4j:5`) | PostgreSQL / Neo4j production-engine comparison |
-
-A real SQLite recursive-CTE engine ships in the Python standard library, so a
-production-grade SQL baseline runs on every host with no server.
-
----
-
-## Quick start
+### Execute a query
 
 ```bash
-# trace one query through the agent flow (offline; no Ollama needed)
-python scripts/run_llm_query.py --source EGFR --target STAT3 --offline
-
-# representative deterministic experiments (NumPy only)
-python scripts/benchmark_reachability.py        # SHRC vs faithful GRAIL/PReaCH/PLL
-python scripts/benchmark_modality_labeling.py   # fallback-free label-constrained index
-python scripts/benchmark_optimizer_dispatch.py  # plan-space optimizer: regret, budget
-python scripts/benchmark_dispatch_ablation.py   # reranker fixed, dispatch rule varied
-python scripts/benchmark_pipeline_baselines.py  # fixed-order vs agentic vs cost-aware, 5k/10k/20k
-python scripts/benchmark_plan_flips.py          # the objective selects plans a fixed order would not
-python scripts/benchmark_generality.py          # SHRC + dispatch on non-PPI graphs, SQLite integration
-python scripts/benchmark_learned_cost.py        # linear vs gradient-boosted cost model
-python scripts/benchmark_engine_baselines.py    # SHRC vs SQLite (and Postgres/Neo4j if provisioned)
+python scripts/run_query.py \
+  --query "Find proteins that bridge TP53 and BRCA1 through a regulatory path with confidence above 0.8" \
+  --data-root /path/to/string/files
 ```
 
-### Run everything
+### Build the SHRC reachability index
 
 ```bash
-python scripts/run_all_experiments.py           # regenerates results/ for all stages
+python scripts/build_shrc_demo.py
 ```
 
-Stages whose optional servers, data, or models are absent are skipped or fall back to a
-labeled offline/fixture mode, so this completes on a plain Tier 0 install and fills in
-more as you add tiers. Every output records its provenance (`backend`,
-`using_fixture`, `offline-deterministic`) so measured and simulated numbers are never
-confused.
+The SHRC implementation lives in `agentflow_ppi/reachability/shrc.py` and provides:
 
----
+- tree-core decomposition with directed refinement,
+- interval labels for the sparse tree region,
+- exact 2-hop labels for the augmented core, and
+- greedy redundancy elimination for tree-to-core exit anchors under existential reachability semantics, and
+- an auditable approximation fallback branch for oversized cores.
 
-## LLM agents (Ollama)
+The released fallback threshold is `fallback_core_threshold=5000`. This is a
+practical guardrail rather than a theoretical constant: it is chosen so that
+all public workloads in the paper remain in exact mode while larger reruns can
+explicitly opt into approximation. When the guardrail is crossed, the current
+artifact records `approximate_core_used=1` and a conservative
+`delta_bound <= epsilon * |C|`; the paper does not claim a validated recall/runtime
+trade-off for that branch yet.
 
-The four agents can run as prompted LLMs. Their system prompts are editable files under
-`agentflow_ppi/agents/llm/prompts/`.
+## Dispatch and reranker gating
+
+The dispatcher implementation now exposes the paper's explicit reranker
+admission thresholds in `agentflow_ppi/execution/cost_dispatcher.py`:
+
+- `reranker_frontier_budget = 50`
+- `reranker_gain_threshold = 0.05`
+
+The helper `should_execute_neural(frontier_size, expected_gain)` mirrors the
+pseudocode in the paper and keeps suppression logic auditable. In the released
+artifact, the frontier budget is treated as a capacity guardrail, while the
+gain threshold is the data-informed selectivity parameter chosen from the
+validation replay recorded in `results/reranker_gate_sensitivity.csv`.
+
+The released dispatcher also exposes the paper-level cost/benefit trade-off
+through `mu_gain = 0.6`, which is the executable counterpart of the lambda
+weight in Equation (1) after feature normalization.
+
+## Apple-Silicon asynchronous R&D flow
+
+The optional `agentflow_ppi/rdflow/` package implements a laptop-scale learned-operator
+collaboration runtime for research automation.
+
+Key modules:
+
+- `rdflow/device.py`: MPS-aware device selection and memory telemetry
+- `rdflow/messages.py`: typed work items and agent envelopes
+- `rdflow/bus.py`: asynchronous queue-isolated message transport
+- `rdflow/router.py`: batched neural priority router for agent selection
+- `rdflow/coordinator.py`: orchestration across planner, theory, engineering, and evaluation agents
+
+Run the demo:
 
 ```bash
-ollama serve &
-ollama pull llama3.1:8b qwen2.5:7b phi3:medium mistral-nemo
-python scripts/benchmark_llm_multiagent.py       # sweeps the models; writes results/
+python scripts/run_rdflow_demo.py \
+  --request "Design proofs, code, and experiments for an MPS-accelerated learned-operator graph system."
 ```
 
-If no Ollama server is reachable, the same scripts fall back to a deterministic schema
-oracle (labeled `offline-deterministic`), so the protocol and tests are verifiable
-without a GPU. An authority constraint guarantees the exact reachable set and ranking
-are always computed symbolically and never altered by a model.
+The runtime automatically falls back to CPU if MPS is unavailable, which keeps
+artifact evaluation reproducible on non-Mac machines.
 
----
+## STRING loader notes
 
-## External (real) data
+The loader supports version-aware parsing for current STRING v12.x file families:
 
-```bash
-pip install requests
-python scripts/download_external_data.py         # STRING/BioGRID/Reactome/OmniPath -> data/external/
-python scripts/build_external_manifest.py
-python scripts/benchmark_external_reranking.py   # protein-/pathway-disjoint splits
-```
+- `protein.links*.txt.gz`
+- `protein.physical.links*.txt.gz`
+- `protein.info*.txt.gz`
+- `protein.aliases*.txt.gz`
+- `protein.sequences*.fa.gz`
+- `protein.network.embeddings*.h5`
+- `protein.sequence.embeddings*.h5`
 
-Identifiers are reconciled to gene symbols; gold mediators are defined by Reactome
-pathway position (independent of every reranker feature). Without network access the
-same scripts run on a bundled fixture, flagged `using_fixture`.
+Species-prefixed exports such as `9606.protein.links.detailed.v12.0.txt.gz` are also supported. The released paper evaluates a 5,024-node subset for reproducibility, but the ingestion path itself is designed for the full STRING v12 family (roughly 20k proteins before task-specific filtering).
 
----
+## Benchmark and data-collection scripts
 
-## Reproducibility notes
+The revised artifact includes the following reproducibility scripts:
 
-- Quality, index, regret, answer-equivalence, generality, and cost-R-squared numbers
-  are deterministic given the seed manifests and match across runs.
-- Latency is machine-dependent and reported per host; no cross-hardware speedup claims
-  are made.
-- Cross-platform setup details for macOS (Intel and Apple Silicon) and Ubuntu are in
-  `SETUP_CROSS_PLATFORM.md`.
+- `scripts/benchmark_reachability.py`: compares SHRC against online BFS, GRAIL-style, PLL-style, PReaCH-style, and TF-label-style reference baselines on sparse and adversarial DAGs.
+- `scripts/collect_dataset_metrics.py`: reports `|V|`, `|E|`, residual core ratio `sigma`, exit-anchor width statistics, SHRC build time, and index size.
+- `scripts/benchmark_cost_model.py`: records predicted versus realized intermediate sizes on a synthetic operator-state replay (separate from the biological test split) and emits correlation metrics.
+- `scripts/benchmark_biological_queries.py`: runs the released biological query families over the reduced STRING-like workload and reports candidate counts, macro-F1, and reranker wall-clock time.
+- `scripts/benchmark_core_scaling.py`: emits the synthetic residual-core sweep used to justify the fallback guardrail.
+- `scripts/check_baseline_invariants.py`: verifies that the exact-label reference baselines (GRAIL-style, PLL-style, TF-label-style) agree with online BFS on the released DAG workloads.
+- `scripts/generate_paper_artifacts.py`: derives aggregate CSV files used by the paper figures.
 
-## License
+Generated result files now include:
 
-Released for research use. See `LICENSE`.
+- `results/reachability_summary_by_index.csv`
+- `results/biological_training_protocol.json`
+- `results/paper_artifact_manifest.json`
+- `results/baseline_invariant_checks.json`
+
+## Supplementary material support
+
+The artifact now includes `scripts/generate_supplementary_results.py`, which derives the supplementary replay tables and mapping CSVs from the released JSON/CSV traces. The resulting files are written to `results/supplementary_*.csv` and are consumed by `paper/supplementary.tex`.
+
+- Supplementary dispatch diagnostics now include route-flip and suppression statistics in `code/results/coefficient_sensitivity.csv` and KL-gap bands in `code/results/supplementary_kl_gap_diagnostics.csv`.
+
+
+## Reviewer-driven reframing note
+
+The revised paper deliberately narrows the original learned-operator wording. The implemented contribution is cost-aware learned-operator dispatch over typed graph operators: SHRC provides exact reachability filtering on acyclic snapshots, and the dispatcher admits neural reranking only when its predicted utility exceeds its measured cost. The package includes dispatch-ablation and SHRC component-ablation CSV files to support this revised claim.

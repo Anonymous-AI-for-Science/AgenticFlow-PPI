@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the SHRC component ablation from REAL index builds.
 
-Earlier this script emitted hard-coded practitioner-response numbers. It now computes
+Earlier this script emitted hard-coded reviewer-response numbers. It now computes
 the SHRC component ablation by actually building each index variant on the
 adversarial cores and the sparse-periphery workload, so every number is measured.
 The dispatch-policy ablation is owned by ``benchmark_dispatch_ablation.py`` and is

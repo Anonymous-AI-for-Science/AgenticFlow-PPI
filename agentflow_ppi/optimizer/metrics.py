@@ -32,7 +32,7 @@ def _feasible_quality(table, qid, plan, budget_ms):
 def regret_vs_oracle(policy: Policy, oracle: OraclePolicy, table, qids, plans,
                      budget_ms: float = None) -> float:
     """Mean per-query quality gap between the oracle and the policy, BOTH scored under
-    the same hard budget (design rationale). The oracle chooses the best budget-feasible
+    the same hard budget (reviewer W1). The oracle chooses the best budget-feasible
     plan, so its feasible quality is an upper bound and regret is always >= 0."""
     bm = budget_ms if budget_ms is not None else oracle.budget_ms
     total = 0.0; n = 0

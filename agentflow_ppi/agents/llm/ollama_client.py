@@ -1,7 +1,7 @@
 """Ollama-backed LLM client for the multi-agent layer, with a deterministic
 offline fallback.
 
-Design goals (design rationale):
+Design goals (reviewer R1-O1.A: instantiate and measure real agents):
   * Real LLM calls. When an Ollama server is reachable (default
     http://localhost:11434), each agent's prompt is rendered from its prompt file
     and sent to a configurable model (e.g. llama3.1:8b, qwen2.5:7b, phi3:medium,

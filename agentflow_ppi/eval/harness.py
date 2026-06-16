@@ -1,6 +1,6 @@
 """Unified biological evaluation harness shared by every experiment script.
 
-Design note: previously the biological benchmark, the dispatch ablation, and
+Reviewer E1 fix: previously the biological benchmark, the dispatch ablation, and
 the end-to-end baselines each defined their own candidate pools, gold labels, and
 reranker, producing inconsistent family counts (16/19/24) and incompatible label
 sources. This module centralizes all of it so every downstream script uses the
@@ -159,7 +159,7 @@ def build_harness_large(num_pathways: int = 40, pathway_len: int = 8,
                         informative_fraction: float = 0.5, seed: int = 7,
                         max_hops: int = 4) -> Harness:
     """Build a large mixed-sign harness from the scalable pathway benchmark
-    (design rationale). Reranking helps on the modality-informative pathways
+    (reviewer W2/W3/W8/W12). Reranking helps on the modality-informative pathways
     and not on the rest, so the calibrated dispatcher must both admit and decline.
 
     Gold labels remain position-on-cascade (independent of edge attributes).
@@ -304,7 +304,7 @@ def train_gain_predictor(h: Harness, train_idx, seed):
     Target = (rerank F1 - symbolic F1) computed on the training pools using a
     reranker trained on the same train split. The predictor is a small ridge
     regressor; the dispatcher admits the reranker iff predicted lift > 0.
-    this is the calibration the dispatch decision actually needs.
+    Reviewer E4: this is the calibration the dispatch decision actually needs.
     """
     model = train_reranker(h, train_idx, seed)
     if model is None:

@@ -58,7 +58,8 @@ def _fit_ridge(X: np.ndarray, y: np.ndarray, lam: float = 1.0, expand: bool = Fa
 def train_cost_quality(h, traces: List[Trace]):
     """Fit (cost_model, quality_model) from traces. Cost is near-linear in the plan,
     so it uses the plain features; quality has query x plan interactions, so it uses
-    the expanded feature map (design rationale)."""
+    the expanded feature map (reviewer W1/W2: a stronger quality model lowers the
+    prediction error eps and makes the regret bound operative)."""
     X = np.array([plan_query_features(h, t.qid, t.plan) for t in traces])
     cost_model = _fit_ridge(X, np.array([t.cost_ms for t in traces]), expand=False)
     quality_model = _fit_ridge(X, np.array([t.quality for t in traces]), lam=2.0, expand=True)

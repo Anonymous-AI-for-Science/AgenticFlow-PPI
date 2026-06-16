@@ -1,14 +1,14 @@
 """Plan-flip analysis: the cost objective selects plans a fixed order would not
-(design rationale).
+(reviewer R1-O3.A).
 
-the design goalA asks specifically: "show the cost objective of selecting a plan that a fixed
+R1-O3.A asks specifically: "show the cost objective of selecting a plan that a fixed
 order would not." Aggregate regret/budget numbers (Q8) show the optimizer is better on
 average, but they do not directly exhibit the *decisions* the objective makes. This
 experiment does exactly that. On the held-out split it compares, per query, the plan
 chosen by:
 
   * fixed-order        -- one fixed physical plan for every query (depth 3, rerank on,
-                          frontier budget 50): the "fixed order" the practitioner names.
+                          frontier budget 50): the "fixed order" the reviewer names.
   * cost-objective     -- the LearnedOptimizer, which picks the plan maximizing
                           predicted quality subject to the predicted-cost budget, i.e.
                           a direct optimization of Equation (1).
@@ -142,7 +142,7 @@ def main():
                     "different physical plan than the fixed order, and on exactly those "
                     "queries the objective's plan saves {1:.3f} ms of realized cost on "
                     "average while changing realized quality by {2:+.3f}. This is the "
-                    "direct evidence the design goalA asked for: the objective of Equation (1) "
+                    "direct evidence R1-O3.A asked for: the objective of Equation (1) "
                     "drives measured plan-selection decisions that a fixed order would "
                     "not make.").format(
                         flip_rate,

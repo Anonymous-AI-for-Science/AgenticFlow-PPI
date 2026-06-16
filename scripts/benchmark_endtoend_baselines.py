@@ -1,6 +1,6 @@
 """End-to-end systems comparison on the shared pathway-grounded harness.
 
-Design note: all systems use the SAME pathway-grounded labels, candidate
+Reviewer E1/E2 fix: all systems use the SAME pathway-grounded labels, candidate
 pools, and trained reranker (via agentflow_ppi.eval.harness), and one baseline is
 a REAL database engine (DuckDB recursive-SQL) rather than an in-process stub that
 collapses to "never rerank". The engine materializes the same contracted typed

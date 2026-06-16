@@ -1,8 +1,8 @@
-"""System-level end-to-end pipeline baselines, at STRING scale (design rationale).
+"""System-level end-to-end pipeline baselines, at STRING scale (R1-O2.A and O2.B).
 
-the design goalA: "no agentic framework ... is run as a baseline for the dispatch-and-
+R1-O2.A: "no agentic framework ... is run as a baseline for the dispatch-and-
 decomposition claim. The end-to-end contribution is thus evaluated only against
-itself." the design goalB: "the evaluation operates at toy scale ... no measurement is
+itself." R1-O2.B: "the evaluation operates at toy scale ... no measurement is
 reported at [~20k] scale."
 
 This harness runs THREE complete pipelines head to head on the *same* queries, the
@@ -178,8 +178,8 @@ def main():
                           "while issuing far fewer reranker calls, because exact "
                           "reachability prunes the frontier and the cost objective declines "
                           "the reranker when it would not help. This is the system-level "
-                          "comparison the design goalA asked for, reported at the STRING scale "
-                          "the design goalB asked for.")}
+                          "comparison R1-O2.A asked for, reported at the STRING scale "
+                          "R1-O2.B asked for.")}
     (out / "pipeline_baselines.json").write_text(json.dumps(report, indent=2))
     with (out / "pipeline_baselines.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)

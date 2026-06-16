@@ -1,6 +1,6 @@
-"""SQLite recursive-CTE reachability engine (design rationale).
+"""SQLite recursive-CTE reachability engine (R2-O2).
 
-the design goal asks for a comparison against a real database engine with its own query planner
+R2-O2 asks for a comparison against a real database engine with its own query planner
 and execution engine. PostgreSQL/Neo4j/TigerGraph adapters require provisioned servers
 (Docker), which an artifact evaluator may not run. SQLite closes that gap: it is a
 full relational engine with its own cost-based query planner and a native recursive

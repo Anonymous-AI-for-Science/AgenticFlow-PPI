@@ -1,4 +1,4 @@
-"""Scalable curated-pathway benchmark generator (design rationale).
+"""Scalable curated-pathway benchmark generator (reviewer W2/W3/W8/W12).
 
 The 19-node hand-built graph was too small to support any generalizable claim, and
 on it the learned reranker never helped, so the calibrated dispatcher never had a

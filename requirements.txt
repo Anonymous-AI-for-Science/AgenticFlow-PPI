@@ -7,3 +7,6 @@ h5py>=3.10
 pyyaml>=6.0
 
 
+
+# optional: nicer progress bars in long-running benchmarks (a stdlib fallback is used if absent)
+tqdm>=4.66

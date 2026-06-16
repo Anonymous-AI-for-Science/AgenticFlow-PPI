@@ -1,16 +1,16 @@
 """Robustness and failure-mode experiments.
 
-Answers practitioner concerns:
-  * the design goal / the design goal (negative-pool stress): the biological reranker is re-evaluated
+Answers reviewer concerns:
+  * R2-O3 / R3-O6 (negative-pool stress): the biological reranker is re-evaluated
     under a HARSHER all-non-reachable negative pool (negatives drawn from proteins
     NOT reachable from the source), in addition to the leakage-controlled
     reachable-unlabeled pool. We report macro-F1@2 under both regimes so the
     favorable-pool caveat is quantified rather than only acknowledged.
-  * the design goal (SHRC failure mode): we sweep the residual-core ratio sigma on
+  * R3-O6 (SHRC failure mode): we sweep the residual-core ratio sigma on
     synthetic STRING-structured graphs and report where SHRC build cost and index
     size degrade toward the dense-core regime, identifying the operating point at
     which the approximate-core fallback becomes necessary.
-  * the design goal (cost-model sensitivity): we sweep the dispatch gain weight (mu_gain)
+  * R3-O5 (cost-model sensitivity): we sweep the dispatch gain weight (mu_gain)
     and selectivity floor and report route stability.
 
 All measured and reproducible.
@@ -97,7 +97,7 @@ def feats(adj, s, v, t, mod):
 
 def negative_pool_stress(root):
     """Stress the strong symbolic ranker under a harsher negative pool, with the
-    independent pathway labels (design rationale). We report how macro-F1@2 of the
+    independent pathway labels (reviewer A1/E1). We report how macro-F1@2 of the
     symbolic baseline degrades when source-unreachable distractors are injected."""
     from agentflow_ppi.eval.harness import build_harness, symbolic_order, f1_at_k, path_score
     h = build_harness()

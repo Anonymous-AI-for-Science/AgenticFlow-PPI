@@ -1,4 +1,4 @@
-"""Test the plan-flip analysis (design rationale): the cost objective must select plans that a
+"""Test the plan-flip analysis (R1-O3.A): the cost objective must select plans that a
 fixed order would not, on a non-trivial fraction of queries, and the flips must be
 realized (cost/quality come from executed traces)."""
 

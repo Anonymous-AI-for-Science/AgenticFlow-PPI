@@ -1,7 +1,7 @@
 """STRING-structured synthetic graph generator for scale experiments.
 
 The released public STRING-v12 subset has ~5k proteins; the full v12 human family
-is ~20k proteins. To answer the practitioners' scale concern with *measured* numbers
+is ~20k proteins. To answer the reviewers' scale concern with *measured* numbers
 rather than extrapolation, this module synthesizes directed multimodal graphs that
 reproduce the structural signature of STRING after the paper's condensation
 pipeline: a small dense residual core surrounded by a large sparse periphery

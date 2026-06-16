@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: agentflow-ppi
+Version: 0.7.0
+Summary: Cost-based learned-operator execution for multimodal protein interaction graph queries with SHRC reachability indexing and Apple-Silicon-aware research automation
+Author: AgentFlow-PPI Artifact
+Requires-Python: >=3.10
+Requires-Dist: requests>=2.31
+Requires-Dist: torch>=2.0
+Requires-Dist: torch-geometric>=2.5
+Requires-Dist: numpy>=1.24
+Requires-Dist: pandas>=2.0
+Requires-Dist: h5py>=3.10
+Requires-Dist: pyyaml>=6.0

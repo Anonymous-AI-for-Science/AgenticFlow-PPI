@@ -1,6 +1,6 @@
 """Curated canonical-pathway ground truth for the named PPI workload.
 
-Design note: the earlier gold-mediator definition used
+Reviewer concern A1: the earlier gold-mediator definition used
 modality-consistency, which is *also* a reranker feature, creating a circular
 evaluation. This module replaces it with an INDEPENDENT label source: membership
 on the canonical signaling cascade that mechanistically connects a source to a
